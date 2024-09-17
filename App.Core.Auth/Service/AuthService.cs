@@ -13,9 +13,9 @@ namespace App.Core.Auth.Service
             _authRepository = authRepository;
         }
 
-        public async Task<IList<string>> AssignRole(string email, string roleName)
+        public async Task<IList<string>> AssignRole(string email, List<string> roles)
         {
-            return await _authRepository.AssignRole(email, roleName);
+            return await _authRepository.AssignRole(email, roles);
         }
 
         public async Task<ResponseDto> Register(RegistrationRequestDto registerDto)
