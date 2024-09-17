@@ -28,9 +28,9 @@ namespace App.Core.Auth.Controllers
         }
 
         [HttpPost("assign-role")]
-        public async Task<IList<string>> AssignRole(string email, string roleName)
+        public async Task<IList<string>> AssignRole(string email, List<string> roles)
         {
-            return await _authService.AssignRole(email, roleName.ToUpper());
+            return await _authService.AssignRole(email, roles);
         }
     }
 }

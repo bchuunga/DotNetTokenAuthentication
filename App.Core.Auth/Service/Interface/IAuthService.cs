@@ -6,6 +6,6 @@ namespace App.Core.Auth.Service.Interface
     {
         Task<ResponseDto> Register(RegistrationRequestDto registerDto);
         Task<ResponseDto> Login(LoginRequestDto loginDto);
-        Task<IList<string>> AssignRole(string email, string roleName);
+        Task<IList<string>> AssignRole(string email, List<string> roles);
     }
 }

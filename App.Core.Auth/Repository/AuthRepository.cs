@@ -40,8 +40,8 @@ namespace App.Core.Auth.Repository
             var result = await _userManager.CreateAsync(user, registerDto.Password);
             if (result.Succeeded)
             {
-                registerDto.Role = AppCoreAuthRoles.UserRole;
-                var roles = await AssignRole(user.Email, registerDto.Role);
+                registerDto.Roles.Add(AppCoreAuthRoles.UserRole);
+                var roles = await AssignRole(user.Email, registerDto.Roles);
                 return new ResponseDto
                 {
                     Message = "User was created",
@@ -84,7 +84,7 @@ namespace App.Core.Auth.Repository
             return new ResponseDto();
         }
 
-        public async Task<IList<string>> AssignRole(string email, string roleName)
+        public async Task<IList<string>> AssignRole(string email, List<string> roles)
         {
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
@@ -92,20 +92,34 @@ namespace App.Core.Auth.Repository
                 return null;
             }
 
-            if (!_roleManager.RoleExistsAsync(roleName).GetAwaiter().GetResult())
+            List<string> rolesToAdd = new List<string>();
+
+            foreach (var role in roles)
             {
-                await CreateRole(roleName);
+                if (!_roleManager.RoleExistsAsync(role).GetAwaiter().GetResult())
+                {
+                    rolesToAdd.Add(role);
+                }
             }
 
-            await _userManager.AddToRoleAsync(user, roleName);
+            await CreateRole(rolesToAdd);
+
+            foreach (var role in rolesToAdd)
+            {
+                await _userManager.AddToRoleAsync(user, role);
+            }
+            
             return await _userManager.GetRolesAsync(user);
         }
         
-        private async Task CreateRole(string roleName)
+        private async Task CreateRole(List<string> roles)
         {
-            if (!_roleManager.RoleExistsAsync(roleName).GetAwaiter().GetResult())
+            foreach (var role in roles)
             {
-                await _roleManager.CreateAsync(new IdentityRole(roleName));
+                if (!_roleManager.RoleExistsAsync(role).GetAwaiter().GetResult())
+                {
+                    await _roleManager.CreateAsync(new IdentityRole(role));
+                }
             }
         }
     }
